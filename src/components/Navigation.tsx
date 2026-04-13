@@ -37,7 +37,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: MessageSquare, label: 'Chats', path: '/conversations' },
     { icon: Users, label: 'Clientes', path: '/customers' },
-    {icon: Bot, label: 'Agente IA', path: '/agente' },
+    { icon: Bot, label: 'Agente IA', path: '/agente' },
+    { icon: Menu, label: 'Catálogo', path: '/catalogo' },
     { icon: Smartphone, label: 'WhatsApp', path: '/whatsapp' },
     { icon: Settings, label: 'Configuración', path: '/settings' },
   ];

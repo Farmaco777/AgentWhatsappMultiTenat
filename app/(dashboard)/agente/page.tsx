@@ -1,17 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Bot, Sparkles, MessageCircle, Settings2, Cpu, Upload, FileText, FileCode, X, Link as LinkIcon, Globe, Calendar, PlusCircle } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Save, Bot, Sparkles, MessageCircle, Cpu, Upload, FileText, FileCode, X, Link as LinkIcon, Globe } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/src/lib/utils';
-import { MOCK_PRODUCTS } from '@/src/data/mockData';
-import { Product } from '@/src/types';
 
 export default function AgentePage() {
   const [hasChanges, setHasChanges] = useState(false);
   const [urlInput, setUrlInput] = useState('');
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative">
       <header>
         <h1 className="text-3xl font-black tracking-tight text-slate-800 flex items-center gap-3">
           <Bot size={32} className="text-teal-600" />
@@ -20,6 +19,7 @@ export default function AgentePage() {
         <p className="text-slate-500 font-medium mt-2">Personaliza el comportamiento, instrucciones y tono de tu asistente virtual.</p>
       </header>
 
+      {/* Main Configuration Card */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -77,45 +77,6 @@ export default function AgentePage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-            <div className="space-y-4 bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                Horarios de Atención
-                <Calendar size={14} className="text-blue-500" />
-              </label>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                  <span className="text-xs font-bold text-slate-600">Lunes - Viernes</span>
-                  <input type="text" defaultValue="08:00 - 22:00" className="bg-slate-50 border-none text-[10px] font-black rounded-lg py-1 px-3 w-32 text-center" />
-                </div>
-                <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                  <span className="text-xs font-bold text-slate-600">Sábados - Domingos</span>
-                  <input type="text" defaultValue="09:00 - 23:00" className="bg-slate-50 border-none text-[10px] font-black rounded-lg py-1 px-3 w-32 text-center" />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4 bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                Reglas de Negocio
-                <Settings2 size={14} className="text-purple-500" />
-              </label>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" defaultChecked className="rounded text-[#25D366] focus:ring-[#25D366]" />
-                  <span className="text-xs font-medium text-slate-600">Aceptar pedidos solo en horario laboral</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" defaultChecked className="rounded text-[#25D366] focus:ring-[#25D366]" />
-                  <span className="text-xs font-medium text-slate-600">Upselling automático de bebidas</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input type="checkbox" className="rounded text-[#25D366] focus:ring-[#25D366]" />
-                  <span className="text-xs font-medium text-slate-600">Solicitar propina opcionalmente</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <div className="pt-6 border-t border-slate-100 flex justify-end">
             <button 
@@ -136,60 +97,7 @@ export default function AgentePage() {
         </div>
       </motion.div>
 
-      {/* Products/Menu Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100"
-      >
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-[1.5rem] bg-orange-50 flex items-center justify-center text-orange-600 shadow-sm">
-              <Sparkles size={28} />
-            </div>
-            <div>
-              <h3 className="text-2xl font-black text-slate-800">Catálogo de Productos / Menú</h3>
-              <p className="text-sm text-slate-400 font-medium">Los productos que tu agente recomendará y venderá.</p>
-            </div>
-          </div>
-          <button className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
-            <PlusCircle size={14} />
-            Añadir Producto
-          </button>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {MOCK_PRODUCTS.map((product) => (
-            <div key={product.id} className="group bg-slate-50/50 rounded-3xl border border-slate-100 overflow-hidden hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
-              <div className="aspect-square relative overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-800 shadow-sm">
-                  ${product.price.toLocaleString()}
-                </div>
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2 text-slate-600">
-                  <span className="text-[9px] font-black uppercase tracking-widest bg-white px-2 py-0.5 rounded-lg border border-slate-100">{product.category}</span>
-                  <div className={cn(
-                    "w-2 h-2 rounded-full",
-                    product.stock === 'in-stock' ? "bg-green-500" : "bg-orange-500"
-                  )} />
-                </div>
-                <h4 className="font-bold text-slate-800 group-hover:text-[#25D366] transition-colors">{product.name}</h4>
-                <p className="text-xs text-slate-400 mt-1 line-clamp-2 font-medium">{product.description}</p>
-                <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
-                  <button className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-red-500 transition-colors">Eliminar</button>
-                  <button className="text-[10px] font-black text-teal-600 uppercase tracking-widest hover:underline">Editar Detalle</button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Training Section */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

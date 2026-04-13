@@ -331,12 +331,12 @@ export default function LandingPage() {
                 Si superas las 1.000 conversaciones mensuales o manejas más de 2 sedes, solicita un plan a medida con soporte dedicado y entrenamiento de IA profundo.
               </p>
             </div>
-            <a 
-              href="https://wa.me/tu_numero" 
-              className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-900 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shrink-0"
+            <Link 
+              href="https://wa.me/your-number" 
+              className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[11px] font-black uppercase tracking-widest border-2 border-[#25D366] hover:bg-[#25D366] hover:text-white transition-all shadow-sm"
             >
               Contactar Ventas
-            </a>
+            </Link>
           </div>
         </section>
       </main>

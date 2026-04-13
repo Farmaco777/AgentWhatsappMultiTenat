@@ -308,7 +308,7 @@ export default function DemoPage() {
                   "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black transition-all active:scale-95 shadow-sm uppercase tracking-wider",
                   isManualMode 
                     ? "bg-slate-900 text-white" 
-                    : "bg-white border-2 border-[#25D366] text-[#25D366]"
+                    : "bg-white border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
                 )}
               >
                 <Zap size={14} />
@@ -320,7 +320,7 @@ export default function DemoPage() {
                   "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black border-2 transition-all active:scale-95 uppercase tracking-wider",
                   isResolved
                     ? "bg-teal-600 text-white border-teal-600"
-                    : "bg-white text-slate-400 border-slate-100"
+                    : "bg-white text-[#00897B] border-[#00897B] hover:bg-[#00897B] hover:text-white"
                 )}
               >
                 <CheckCircle2 size={14} />

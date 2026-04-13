@@ -1,0 +1,9 @@
+{
+  "name": "MenuIA Agents",
+  "description": "SaaS PWA para gestión inteligente de restaurantes y cafeterías con IA y WhatsApp.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

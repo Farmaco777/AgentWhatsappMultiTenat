@@ -22,14 +22,42 @@ import {
   MapPin
 } from 'lucide-react';
 import Link from 'next/link';
-import { MOCK_CUSTOMERS } from '@/src/data/mockData';
+import { MOCK_CUSTOMERS, MOCK_CHATS } from '@/src/data/mockData';
 import { cn } from '@/src/lib/utils';
 import { motion } from 'motion/react';
 
 export default function CustomerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const customer = MOCK_CUSTOMERS.find(c => c.id === id) || MOCK_CUSTOMERS[0];
+
+  // Unified search logic: search in customers or build from chat
+  const getCustomerData = () => {
+    // 1. Try to find in Customers
+    const directCustomer = MOCK_CUSTOMERS.find(c => c.id === id);
+    if (directCustomer) return directCustomer;
+
+    // 2. Try to find in Chats and map
+    const chatData = MOCK_CHATS.find(c => c.id === id);
+    if (chatData) {
+      return {
+        id: chatData.id,
+        name: chatData.customerName,
+        phone: '+57 320 000 0000', // Mock data
+        email: `${chatData.customerName.toLowerCase().replace(' ', '.')}@email.com`,
+        totalSpent: 0,
+        lastVisit: 'Hoy',
+        frequency: 'Nuevo',
+        tags: ['Vía WhatsApp'],
+        address: 'Dirección por confirmar',
+        preferences: { favoriteProduct: 'N/A', notes: 'Detectado vía chat.' }
+      };
+    }
+
+    // 3. Last fallback
+    return MOCK_CUSTOMERS[0];
+  };
+
+  const customer = getCustomerData();
   
   const [isEditing, setIsEditing] = useState(false);
   const [showAllOrders, setShowAllOrders] = useState(false);
@@ -80,7 +108,7 @@ export default function CustomerProfilePage({ params }: { params: Promise<{ id: 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden group"
+            className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden group h-full"
           >
             {/* Action Buttons inside Card */}
             <div className="absolute top-8 right-8 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all z-20">
@@ -156,6 +184,44 @@ export default function CustomerProfilePage({ params }: { params: Promise<{ id: 
               </div>
             </div>
             <div className="absolute top-0 right-0 w-64 h-64 bg-teal-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50"></div>
+          </motion.div>
+        </div>
+
+        {/* Quick Stats Card */}
+        <div className="col-span-12 lg:col-span-4">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-[#25D366] rounded-[2.5rem] p-8 shadow-xl shadow-[#25D366]/20 flex flex-col justify-between h-full relative overflow-hidden border-none"
+          >
+            <div className="relative z-10">
+              <h3 className="text-[10px] font-black text-black uppercase tracking-[0.25em] mb-2">Análisis Comercial</h3>
+              
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black text-emerald-50 uppercase tracking-widest block opacity-80">Gasto Total Acumulado</span>
+                  <div className="flex items-end gap-3">
+                    <p className="text-3xl xl:text-4xl font-black text-white leading-none">${customer.totalSpent.toLocaleString()}</p>
+                    <TrendingUp size={20} className="text-white/30 mb-1" />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/10">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-black text-emerald-50 uppercase tracking-widest block opacity-70">Frecuencia</span>
+                    <p className="text-lg font-black text-white">{customer.frequency}</p>
+                  </div>
+                  <div className="space-y-1 text-right">
+                    <span className="text-[9px] font-black text-emerald-50 uppercase tracking-widest block opacity-70">Ticket Prom.</span>
+                    <p className="text-lg font-black text-white">$45,200</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Background Decoration */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -mr-32 -mt-32 opacity-60"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full blur-[60px] -ml-24 -mb-24 opacity-30"></div>
           </motion.div>
         </div>
       </div>

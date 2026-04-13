@@ -88,10 +88,10 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link href="/login" className="px-7 py-3 text-[11px] font-black text-slate-900 uppercase tracking-widest border-2 border-[#00897B] rounded-2xl hover:bg-[#00897B] hover:text-white transition-all">
+            <Link href="/login" className="px-6 py-2.5 md:px-7 md:py-3 text-[10px] md:text-[11px] font-black text-slate-900 uppercase tracking-widest border-2 border-[#00897B] rounded-2xl hover:bg-[#00897B] hover:text-white transition-all">
               Iniciar Sesión
             </Link>
-            <Link href="/register" className="px-7 py-3 bg-[#25D366] text-white border-2 border-[#25D366] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-transparent hover:text-[#25D366] transition-all shadow-xl shadow-[#25D366]/20">
+            <Link href="/register" className="hidden md:inline-block px-7 py-3 bg-[#25D366] text-white border-2 border-[#25D366] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-transparent hover:text-[#25D366] transition-all shadow-xl shadow-[#25D366]/20">
               Registrarse
             </Link>
           </div>

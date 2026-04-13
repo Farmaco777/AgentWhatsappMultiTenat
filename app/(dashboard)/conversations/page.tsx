@@ -2,17 +2,18 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Search,
-  Phone,
   MoreVertical,
   Send,
   Sparkles,
   ArrowRight,
   User,
   CheckCircle2,
-  Zap
+  Zap,
+  Trash2,
+  X
 } from 'lucide-react';
 import { MOCK_CHATS } from '@/src/data/mockData';
 import { cn } from '@/src/lib/utils';
@@ -21,19 +22,23 @@ import { supabase } from '@/src/lib/supabase';
 
 function ConversationsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const chatIdParam = searchParams?.get('chatId');
 
-  const initialChat = MOCK_CHATS.find(c => c.id === chatIdParam) || MOCK_CHATS[0];
+  const [chats, setChats] = useState(MOCK_CHATS);
+  const initialChat = chats.find(c => c.id === chatIdParam) || chats[0];
   const [selectedChat, setSelectedChat] = useState(initialChat);
   const [isManualMode, setIsManualMode] = useState(false);
   const [isResolved, setIsResolved] = useState(false);
   const [messageInput, setMessageInput] = useState('');
-  const [localMessages, setLocalMessages] = useState(initialChat.messages);
+  const [localMessages, setLocalMessages] = useState(initialChat?.messages || []);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // Sincronización en tiempo real con Supabase
   useEffect(() => {
-    if (!selectedChat.id.startsWith('chat') && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    if (selectedChat && !selectedChat.id.startsWith('chat') && process.env.NEXT_PUBLIC_SUPABASE_URL) {
       const channel = supabase
         .channel(`messages:${selectedChat.id}`)
         .on('postgres_changes', { 
@@ -51,23 +56,33 @@ function ConversationsContent() {
         supabase.removeChannel(channel);
       };
     }
-  }, [selectedChat.id]);
+  }, [selectedChat?.id]);
 
   useEffect(() => {
     if (chatIdParam) {
-      const chat = MOCK_CHATS.find(c => c.id === chatIdParam);
+      const chat = chats.find(c => c.id === chatIdParam);
       if (chat) {
         setSelectedChat(chat);
         setLocalMessages(chat.messages);
       }
     }
-  }, [chatIdParam]);
+  }, [chatIdParam, chats]);
 
   const handleChatSelect = (chat: typeof MOCK_CHATS[0]) => {
     setSelectedChat(chat);
     setLocalMessages(chat.messages);
     setIsResolved(false);
     setIsManualMode(false);
+    setIsMenuOpen(false);
+  };
+
+  const handleDeleteChat = () => {
+    const updatedChats = chats.filter(c => c.id !== selectedChat.id);
+    setChats(updatedChats);
+    if (updatedChats.length > 0) {
+      handleChatSelect(updatedChats[0]);
+    }
+    setIsMenuOpen(false);
   };
 
   const handleSendMessage = () => {
@@ -85,7 +100,7 @@ function ConversationsContent() {
     setIsManualMode(true);
   };
   
-  const filteredChats = MOCK_CHATS.filter(chat => 
+  const filteredChats = chats.filter(chat => 
     chat.customerName.toLowerCase().includes(searchQuery.toLowerCase()) || 
     chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -95,7 +110,7 @@ function ConversationsContent() {
       <div className="flex-1 flex overflow-hidden bg-white shadow-2xl border border-slate-100">
         
         {/* Chat List (Sidebar) */}
-        <aside className="hidden lg:flex w-85 flex-col bg-white border-r border-slate-100 shrink-0">
+        <aside className="hidden lg:flex w-80 flex-col bg-white border-r border-slate-100 shrink-0">
           <div className="p-6 border-b border-slate-50">
             <div className="flex items-center gap-4 mb-6">
               <Link href="/dashboard" className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400 hover:text-slate-600">
@@ -103,7 +118,7 @@ function ConversationsContent() {
               </Link>
               <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
                 Mensajes
-                <span className="bg-[#25D366]/10 text-[#25D366] text-[10px] px-2 py-0.5 rounded-full">{MOCK_CHATS.length}</span>
+                <span className="bg-[#25D366]/10 text-[#25D366] text-[10px] px-2 py-0.5 rounded-full">{chats.length}</span>
               </h2>
             </div>
             <div className="relative">
@@ -125,7 +140,7 @@ function ConversationsContent() {
                 onClick={() => handleChatSelect(chat)}
                 className={cn(
                   "p-4 rounded-2xl cursor-pointer transition-all duration-200 flex gap-3",
-                  selectedChat.id === chat.id
+                  selectedChat?.id === chat.id
                     ? "bg-slate-50 shadow-sm border border-slate-100 border-l-4 border-l-[#25D366]"
                     : "hover:bg-slate-50/50"
                 )}
@@ -155,28 +170,64 @@ function ConversationsContent() {
               <div className="w-11 h-11 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 font-bold border border-teal-100">
                 <User size={22} />
               </div>
-              <div>
-                <h3 className="text-sm font-black text-slate-800 tracking-tight">{selectedChat.customerName}</h3>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <p className={cn(
-                    "text-[10px] font-black uppercase tracking-widest",
-                    isManualMode ? "text-orange-500" : "text-[#25D366]"
-                  )}>
-                    {isManualMode ? "Control Manual" : "IA Optimizando"}
-                  </p>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#25D366]/10 border border-[#25D366]/20 rounded-full">
-                    <Sparkles size={10} className={cn(isManualMode ? "text-orange-500" : "text-[#25D366]")} />
-                    <span className={cn("text-[9px] font-black", isManualMode ? "text-orange-500" : "text-[#25D366]")}>
-                      {isManualMode ? "AI PAUSA" : "AI ACTIVA"}
-                    </span>
+              {selectedChat && (
+                <div>
+                  <h3 className="text-sm font-black text-slate-800 tracking-tight">{selectedChat.customerName}</h3>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className={cn(
+                      "text-[10px] font-black uppercase tracking-widest",
+                      isManualMode ? "text-orange-500" : "text-[#25D366]"
+                    )}>
+                      {isManualMode ? "Control Manual" : "IA Optimizando"}
+                    </p>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#25D366]/10 border border-[#25D366]/20 rounded-full">
+                      <Sparkles size={10} className={cn(isManualMode ? "text-orange-500" : "text-[#25D366]")} />
+                      <span className={cn("text-[9px] font-black", isManualMode ? "text-orange-500" : "text-[#25D366]")}>
+                        {isManualMode ? "AI PAUSA" : "AI ACTIVA"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
             
-            <div className="flex items-center gap-1">
-              <button className="p-2.5 text-slate-400 hover:bg-slate-50 rounded-full transition-all"><Phone size={20} /></button>
-              <button className="p-2.5 text-slate-400 hover:bg-slate-50 rounded-full transition-all"><MoreVertical size={20} /></button>
+            <div className="flex items-center gap-1 relative">
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="p-2.5 text-slate-400 hover:bg-slate-50 rounded-full transition-all"
+              >
+                <MoreVertical size={20} />
+              </button>
+
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {isMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute top-full right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 overflow-hidden"
+                  >
+                    <button 
+                      onClick={() => { 
+                        router.push(`/customers/${selectedChat.id}`);
+                        setIsMenuOpen(false); 
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-colors"
+                    >
+                      <User size={16} className="text-blue-500" />
+                      Ver Perfil
+                    </button>
+                    <button 
+                      onClick={handleDeleteChat}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                    >
+                      <Trash2 size={16} />
+                      Eliminar Chat
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </header>
 
@@ -219,7 +270,7 @@ function ConversationsContent() {
 
           {/* Footer Control */}
           <div className="bg-white/80 backdrop-blur-md border-t border-slate-200 p-6 space-y-4 shrink-0">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center gap-3">
               <button 
                 onClick={() => setIsManualMode(!isManualMode)}
                 className={cn(
@@ -271,7 +322,6 @@ function ConversationsContent() {
             </div>
           </div>
         </main>
-
       </div>
     </div>
   );

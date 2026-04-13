@@ -158,41 +158,6 @@ export default function CustomerProfilePage({ params }: { params: Promise<{ id: 
             <div className="absolute top-0 right-0 w-64 h-64 bg-teal-50 rounded-full blur-[100px] -mr-32 -mt-32 opacity-50"></div>
           </motion.div>
         </div>
-
-        {/* Loyalty Stats Card */}
-        <div className="col-span-12 lg:col-span-4">
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-slate-900 rounded-[2.5rem] p-6 text-white relative overflow-hidden h-full flex flex-col justify-center shadow-xl shadow-slate-900/10"
-          >
-            <div className="relative z-10 space-y-2">
-              <div>
-                <div className="flex items-center justify-between mb-0.5">
-                  <h4 className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Puntos Acumulados</h4>
-                  <Award size={14} className="text-[#25D366]" />
-                </div>
-                <p className="text-3xl font-black text-white">{customer.points}</p>
-                <div className="mt-2 bg-white/10 rounded-full h-1 w-full overflow-hidden">
-                  <div className="bg-[#25D366] h-full w-[70%]"></div>
-                </div>
-                <p className="text-[7px] text-slate-500 font-bold mt-1 uppercase tracking-widest">Nivel 4: Gourmet Explorer</p>
-              </div>
-
-              <div className="pt-3 border-t border-white/10 grid grid-cols-2 gap-4">
-                <div>
-                  <h5 className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Gastado</h5>
-                  <p className="text-sm font-black text-white leading-none">${customer.totalSpent.toLocaleString()}</p>
-                </div>
-                <div>
-                  <h5 className="text-[7px] font-black text-slate-500 uppercase tracking-widest mb-1">Frecuencia</h5>
-                  <p className="text-sm font-black text-[#25D366] leading-none">{customer.frequency}</p>
-                </div>
-              </div>
-            </div>
-            <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#25D366]/20 rounded-full blur-3xl -mb-16 -mr-16"></div>
-          </motion.div>
-        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-8">
@@ -222,7 +187,6 @@ export default function CustomerProfilePage({ params }: { params: Promise<{ id: 
             <div className="grid grid-cols-[2.5fr_1fr_1fr_1.2fr_1fr] px-6 py-3 bg-slate-50/50 rounded-xl mb-4">
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Número pedido</span>
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Fecha</span>
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Puntos</span>
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Estado</span>
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Precio</span>
             </div>
@@ -238,11 +202,6 @@ export default function CustomerProfilePage({ params }: { params: Promise<{ id: 
                   </div>
                   
                   <p className="text-[11px] text-slate-500 font-bold text-center">1{i} Oct</p>
-                  
-                  <div className="flex justify-center text-orange-500 font-black text-[10px] items-center gap-1">
-                    <Star size={10} className="fill-orange-500" />
-                    +1{i}0
-                  </div>
 
                   <div className="flex justify-center">
                     <span className="px-3 py-1 bg-green-50 text-green-600 text-[9px] font-black uppercase tracking-widest rounded-full">

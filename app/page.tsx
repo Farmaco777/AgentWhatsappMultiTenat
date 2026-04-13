@@ -10,7 +10,8 @@ import {
   ArrowRight, 
   Smartphone, 
   Sparkles,
-  Play
+  Play,
+  Send
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
@@ -87,10 +88,10 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link href="/login" className="px-5 py-2 text-xs font-black text-slate-900 uppercase tracking-widest">
-              Login
+            <Link href="/login" className="px-7 py-3 text-[11px] font-black text-slate-900 uppercase tracking-widest border-2 border-[#00897B] rounded-2xl hover:bg-[#00897B] hover:text-white transition-all">
+              Iniciar Sesión
             </Link>
-            <Link href="/register" className="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#25D366] transition-all shadow-xl shadow-slate-200">
+            <Link href="/register" className="px-7 py-3 bg-[#25D366] text-white border-2 border-[#25D366] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-transparent hover:text-[#25D366] transition-all shadow-xl shadow-[#25D366]/20">
               Registrarse
             </Link>
           </div>
@@ -117,9 +118,9 @@ export default function LandingPage() {
                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#25D366]">Ecosistema Multi-Tenant AI</span>
                 </div>
                 
-                <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 leading-[0.85] mb-6">
-                  Vende de forma <br />
-                  <span className="text-[#25D366]">autónoma.</span>
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-slate-900 leading-[0.85] mb-6">
+                  <span className="block md:whitespace-nowrap">Vende de forma</span>
+                  <span className="text-[#25D366] block">autónoma.</span>
                 </h1>
                 
                 <p className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed mb-10 max-w-xl">
@@ -127,10 +128,10 @@ export default function LandingPage() {
                 </p>
                 
                 <div className="flex flex-col sm:flex-row items-center gap-4 mb-12">
-                  <Link href="/register" className="w-full sm:w-auto px-10 py-5 bg-[#25D366] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-2xl shadow-[#25D366]/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">
-                    Empezar ahora <ArrowRight size={16} />
+                  <Link href="/register" className="w-full sm:w-auto px-10 py-5 bg-[#25D366] text-white border-2 border-[#25D366] rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-2xl shadow-[#25D366]/30 hover:bg-transparent hover:text-[#25D366] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 group">
+                    Empezar ahora <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
-                  <Link href="/demo" className="w-full sm:w-auto px-10 py-5 bg-white border-2 border-slate-100 text-slate-900 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-3">
+                  <Link href="/demo" className="w-full sm:w-auto px-10 py-5 bg-white border-2 border-[#00897B] text-slate-900 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#00897B] hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">
                     Ver Demo <Play size={14} fill="currentColor" className="ml-1" />
                   </Link>
                 </div>
@@ -159,7 +160,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="relative z-10 w-full max-w-[280px]"
               >
-                <div className="rounded-[2.5rem] border-[8px] border-slate-900 overflow-hidden shadow-2xl aspect-[9/17.5] bg-white flex flex-col">
+                <div className="rounded-[2.5rem] border-[8px] border-slate-900 overflow-hidden shadow-2xl aspect-[9/16] bg-white flex flex-col uppercase tracking-tighter">
                   <div className="bg-slate-900 p-4 border-b border-white/5">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center text-white font-black text-[10px]">MB</div>
@@ -169,7 +170,7 @@ export default function LandingPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex-1 bg-[#efeae2] p-4 space-y-4 overflow-y-auto">
+                  <div className="flex-1 bg-[#efeae2] p-4 space-y-4 overflow-y-auto flex flex-col justify-center">
                     <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%]">
                       <p className="text-[11px] font-medium text-slate-800">¡Hola! ¿Qué te gustaría pedir de nuestro catálogo hoy? 🍕🍔</p>
                     </div>
@@ -188,7 +189,7 @@ export default function LandingPage() {
                   <div className="p-3 bg-white border-t border-slate-100 flex gap-2">
                     <div className="flex-1 h-8 bg-slate-50 rounded-full border border-slate-100" />
                     <div className="w-8 h-8 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg shadow-[#25D366]/20">
-                      <Zap size={14} className="text-white fill-current" />
+                      <Send size={14} className="text-white fill-current ml-0.5" />
                     </div>
                   </div>
                 </div>
@@ -200,32 +201,64 @@ export default function LandingPage() {
         </section>
 
         {/* Features SECTION */}
-        <section id="features" className="py-24 bg-slate-50 border-y border-slate-100">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <section id="features" className="py-32 bg-slate-50 relative overflow-hidden">
+          <div className="max-w-6xl mx-auto px-6 relative z-10">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tighter">Potencia tu negocio con IA.</h2>
+              <p className="text-slate-500 font-medium max-w-2xl mx-auto uppercase tracking-[0.15em] text-[10px]">Descubre las herramientas que transformarán tu atención al cliente</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 { 
-                  icon: <Zap className="text-orange-500" />, 
+                  icon: <Zap size={28} />, 
                   title: 'Velocidad de Respuesta', 
-                  desc: 'Atención inmediata 24/7. Tus clientes nunca volverán a esperar a que alguien lea su mensaje.' 
+                  desc: 'Atención inmediata 24/7. Tus clientes nunca volverán a esperar a que alguien lea su mensaje.',
+                  color: 'from-orange-500 to-amber-400',
+                  bg: 'bg-orange-50',
+                  accent: 'group-hover:shadow-orange-200'
                 },
                 { 
-                  icon: <ShieldCheck className="text-[#25D366]" />, 
+                  icon: <ShieldCheck size={28} />, 
                   title: 'Seguridad Empresarial', 
-                  desc: 'Conectado a la API oficial de Meta para máxima estabilidad y cumplimiento de términos.' 
+                  desc: 'Conectado a la API oficial de Meta para máxima estabilidad y cumplimiento de términos legales.',
+                  color: 'from-[#25D366] to-[#1EBE5C]',
+                  bg: 'bg-emerald-50',
+                  accent: 'group-hover:shadow-[#25D366]/20'
                 },
                 { 
-                  icon: <Smartphone className="text-blue-500" />, 
+                  icon: <Smartphone size={28} />, 
                   title: 'Gestión Centralizada', 
-                  desc: 'Controla pedidos, clientes y conversaciones desde un dashboard unificado de alto rendimiento.' 
+                  desc: 'Controla pedidos, clientes y conversaciones desde un dashboard unificado de alto rendimiento.',
+                  color: 'from-blue-600 to-cyan-400',
+                  bg: 'bg-blue-50',
+                  accent: 'group-hover:shadow-blue-200'
                 }
               ].map((item, i) => (
-                <div key={i} className="group">
-                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 mb-6 group-hover:scale-110 transition-transform">
-                    {item.icon}
+                <div 
+                  key={i} 
+                  className={cn(
+                    "group p-10 rounded-[3rem] bg-white border border-slate-200 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden",
+                    item.accent
+                  )}
+                >
+                  {/* Decorative Gradient Background on Hover */}
+                  <div className={cn(
+                    "absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-0 group-hover:opacity-10 rounded-full -mr-16 -mt-16 transition-all duration-700 scale-50 group-hover:scale-150",
+                    item.color
+                  )} />
+                  
+                  <div className={cn(
+                    "w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-lg shadow-black/5 bg-gradient-to-br",
+                    item.color
+                  )}>
+                    <div className="text-white">
+                      {item.icon}
+                    </div>
                   </div>
-                  <h3 className="text-xl font-black text-slate-900 mb-3">{item.title}</h3>
-                  <p className="text-sm font-medium text-slate-500 leading-relaxed uppercase tracking-wide text-[10px] text-justify">{item.desc}</p>
+                  
+                  <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">{item.title}</h3>
+                  <p className="text-slate-500 font-medium leading-relaxed text-[13px]">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -246,7 +279,7 @@ export default function LandingPage() {
                 className={cn(
                   "p-10 rounded-[3rem] border transition-all flex flex-col relative",
                   plan.highlight 
-                    ? "bg-slate-900 text-white border-slate-900 shadow-2xl scale-105 z-10" 
+                    ? "bg-[#00897B] text-white border-[#00897B] shadow-2xl scale-105 z-10" 
                     : "bg-white text-slate-900 border-slate-200 hover:border-[#25D366]"
                 )}
               >
@@ -262,8 +295,8 @@ export default function LandingPage() {
                 
                 <div className="flex items-baseline gap-1 mb-10">
                   <span className="text-[10px] font-black opacity-60">COP</span>
-                  <span className="text-5xl font-black">${plan.price}</span>
-                  <span className="text-sm font-bold opacity-60">{plan.frequency}</span>
+                  <span className="text-3xl font-black tracking-tighter">${plan.price}</span>
+                  <span className="text-[10px] font-bold uppercase opacity-60">{plan.frequency}</span>
                 </div>
 
                 <div className="space-y-4 mb-12 flex-1">
@@ -275,13 +308,13 @@ export default function LandingPage() {
                   ))}
                 </div>
 
-                <Link 
-                  href="/register"
+                <Link
+                  href={plan.highlight ? "/register" : "/login"}
                   className={cn(
-                    "w-full py-5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all text-center",
-                    plan.highlight 
-                      ? "bg-[#25D366] text-white hover:bg-[#1fb355]" 
-                      : "bg-slate-900 text-white hover:bg-slate-800"
+                    "w-full py-4 px-6 rounded-2xl text-center text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                    plan.highlight
+                      ? "bg-[#25D366] text-white hover:bg-white hover:text-[#25D366] shadow-xl shadow-[#25D366]/20"
+                      : "bg-transparent text-slate-800 border-2 border-[#25D366] hover:bg-[#25D366] hover:text-white"
                   )}
                 >
                   {plan.cta}

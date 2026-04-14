@@ -81,7 +81,7 @@ export const Sidebar = ({ className, isOpen, onClose }: SidebarProps) => {
             )}
           </div>
 
-          <nav className="flex-1 flex flex-col gap-1">
+          <nav className="flex-1 flex flex-col justify-between py-6">
             {navItems.map((item) => {
               const isActive = pathname === item.path || pathname.startsWith(item.path + '/');
               return (

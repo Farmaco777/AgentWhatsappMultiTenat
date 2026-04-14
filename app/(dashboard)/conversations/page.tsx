@@ -106,8 +106,8 @@ function ConversationsContent() {
   );
 
   return (
-    <div className="h-screen w-full flex flex-col bg-slate-50 overflow-hidden">
-      <div className="flex-1 flex overflow-hidden bg-white shadow-2xl border border-slate-100">
+    <div className="h-[calc(100vh-144px)] md:h-[calc(100vh-96px)] w-full flex flex-col bg-slate-50 overflow-hidden md:rounded-3xl border border-slate-100 shadow-sm relative">
+      <div className="flex-1 flex overflow-hidden bg-white">
         
         {/* Chat List (Sidebar) */}
         <aside className="hidden lg:flex w-80 flex-col bg-white border-r border-slate-100 shrink-0">

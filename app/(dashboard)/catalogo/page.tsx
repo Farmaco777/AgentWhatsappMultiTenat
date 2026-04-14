@@ -120,7 +120,7 @@ export default function CatalogoPage() {
           <div className="flex items-center gap-2 md:gap-3">
             <button 
               onClick={() => setIsManageModalOpen(true)}
-              className="p-3 bg-white border-2 border-slate-100 text-slate-400 rounded-2xl hover:border-slate-200 hover:text-slate-600 transition-all shadow-sm"
+              className="flex items-center justify-center w-11 h-11 bg-white border-2 border-slate-100 text-slate-400 rounded-2xl hover:border-slate-200 hover:text-slate-600 transition-all shadow-sm"
               title="Gestionar Categorías"
             >
               <Settings2 size={18} />
@@ -147,10 +147,10 @@ export default function CatalogoPage() {
           <button
             onClick={() => setSelectedCategory('Todos')}
             className={cn(
-              "px-6 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
+              "px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
               selectedCategory === 'Todos'
                 ? "bg-[#00897B] border-[#00897B] text-white shadow-md shadow-[#00897B]/20"
-                : "bg-white border-slate-100 text-slate-400 hover:bg-[#00897B] hover:border-[#00897B] hover:text-white"
+                : "bg-white border-[#00897B]/30 text-slate-400 hover:bg-[#00897B] hover:border-[#00897B] hover:text-white"
             )}
           >
             Todos
@@ -160,10 +160,10 @@ export default function CatalogoPage() {
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={cn(
-                "px-6 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
+                "px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
                 selectedCategory === cat
                   ? "bg-[#00897B] border-[#00897B] text-white shadow-md shadow-[#00897B]/20"
-                  : "bg-white border-slate-100 text-slate-400 hover:bg-[#00897B] hover:border-[#00897B] hover:text-white"
+                  : "bg-white border-[#00897B]/30 text-slate-400 hover:bg-[#00897B] hover:border-[#00897B] hover:text-white"
               )}
             >
               {cat}
@@ -189,8 +189,8 @@ export default function CatalogoPage() {
               >
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 w-full">
                   {/* Status & Category */}
-                  <div className="flex flex-row md:flex-col items-center gap-2 md:gap-2 shrink-0 w-full md:w-[110px]">
-                    <div className="bg-white/80 border-2 border-[#25D366]/30 flex-1 md:w-full h-8 rounded-xl flex items-center justify-center gap-2 shadow-sm shrink-0">
+                  <div className="flex flex-col items-start gap-2 shrink-0">
+                    <div className="bg-white/80 border-2 border-[#25D366]/30 w-[115px] py-1.5 rounded-2xl flex items-center justify-center gap-2 shadow-sm shrink-0">
                        <button 
                         onClick={(e) => {
                           e.stopPropagation();
@@ -214,9 +214,9 @@ export default function CatalogoPage() {
                       </span>
                     </div>
                     
-                    <span className="bg-[#00897B]/5 flex-1 md:w-full h-8 rounded-xl border-2 border-[#00897B]/40 text-[#00897B] text-[9px] font-black uppercase tracking-widest flex items-center justify-center text-center shrink-0">
+                    <div className="bg-[#00897B]/5 w-[115px] py-2 rounded-2xl border-2 border-[#00897B]/40 text-[#00897B] text-[9px] font-black uppercase tracking-widest flex items-center justify-center text-center shrink-0 shadow-sm">
                       {product.category}
-                    </span>
+                    </div>
                   </div>
 
                   {/* Product Info */}

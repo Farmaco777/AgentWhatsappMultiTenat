@@ -383,7 +383,7 @@ export default function CustomersPage() {
           <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-slate-100">
             <div className="px-8 pt-8 pb-4 space-y-4">
               <h3 className="text-xl font-black text-slate-800 tracking-tight">Directorio de Clientes</h3>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="flex-1 relative">
                   <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
@@ -395,18 +395,18 @@ export default function CustomersPage() {
                   />
                 </div>
                 
-                <div className="flex items-center gap-2 relative">
+                <div className="grid grid-cols-2 lg:flex items-center gap-2 relative">
                   <button 
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                     className={cn(
-                      "flex items-center gap-2 px-5 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm group",
+                      "flex items-center justify-center gap-2 px-3 md:px-5 py-3 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm group",
                       filterLevel !== 'TODOS' 
                         ? "bg-teal-50 border-teal-200 text-teal-700" 
                         : "bg-white border-slate-100 text-slate-500 hover:bg-slate-50"
                     )}
                   >
                     <Filter size={14} className={cn("transition-colors", filterLevel !== 'TODOS' ? "text-teal-600" : "text-slate-400")} />
-                    {filterLevel === 'TODOS' ? 'FILTRAR' : `NIVEL: ${filterLevel}`}
+                    <span className="truncate">{filterLevel === 'TODOS' ? 'FILTRAR' : `${filterLevel}`}</span>
                     <ChevronDown size={14} className={cn("transition-transform duration-200", isFilterOpen ? "rotate-180" : "")} />
                   </button>
 
@@ -442,11 +442,11 @@ export default function CustomersPage() {
                   
                   <button 
                     onClick={() => setIsViewAll(true)}
-                    className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-100 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm group"
+                    className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-5 py-3 bg-white border border-slate-100 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm group whitespace-nowrap"
                   >
                     <Users size={14} className="text-slate-400 group-hover:text-teal-600" />
                     VER TODO
-                    <ArrowRight size={14} className="text-slate-300" />
+                    <ArrowRight size={12} className="text-slate-300 hidden md:block" />
                   </button>
                 </div>
               </div>

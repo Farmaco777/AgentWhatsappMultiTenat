@@ -14,8 +14,14 @@ import {
   Bot,
   Smartphone,
   LogOut,
-  X
+  X,
+  BellRing,
+  MessageSquareWarning,
+  AlertTriangle,
+  Clock,
+  ChevronRight
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/src/lib/utils';
 
 interface SidebarProps {
@@ -31,7 +37,7 @@ const navItems = [
   { icon: ReceiptText, label: 'Catálogo', path: '/catalogo' },
   { icon: Users, label: 'Clientes', path: '/customers' },
   { icon: Smartphone, label: 'WhatsApp', path: '/whatsapp' },
-  { icon: Settings, label: 'Configuración', path: '/settings' },
+  { icon: Settings, label: 'Ajustes', path: '/settings' },
 ];
 
 export const Sidebar = ({ className, isOpen, onClose }: SidebarProps) => {
@@ -114,6 +120,50 @@ export const Sidebar = ({ className, isOpen, onClose }: SidebarProps) => {
 
 export const Header = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  
+  // Mock notifications - In production these would come from Supabase real-time
+  const [notifications, setNotifications] = useState([
+    { 
+      id: 1, 
+      type: 'intervention', 
+      title: 'Intervención Humana', 
+      description: 'Luis Sarabia requiere atención manual en su consulta.',
+      time: 'Hace 2 min',
+      isRead: false,
+      icon: MessageSquareWarning,
+      color: 'text-orange-500',
+      bg: 'bg-orange-50'
+    },
+    { 
+      id: 2, 
+      type: 'order', 
+      title: 'Nuevo Pedido', 
+      description: 'Se ha registrado un pedido de Maria Lopez por $55.000.',
+      time: 'Hace 15 min',
+      isRead: true,
+      icon: ReceiptText,
+      color: 'text-teal-600',
+      bg: 'bg-teal-50'
+    },
+    { 
+      id: 3, 
+      type: 'system', 
+      title: 'Agente IA Actualizado', 
+      description: 'Se ha sincronizado el catálogo con el motor de respuestas.',
+      time: 'Hace 1 hora',
+      isRead: true,
+      icon: Bot,
+      color: 'text-blue-500',
+      bg: 'bg-blue-50'
+    }
+  ]);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+  };
 
   return (
     <>
@@ -129,11 +179,112 @@ export const Header = () => {
             </button>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+          <div className="flex items-center gap-4 relative">
+            <button 
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className={cn(
+                "p-2.5 rounded-full transition-all relative group",
+                isNotificationsOpen ? "bg-teal-50 text-teal-600" : "text-slate-500 hover:bg-slate-50"
+              )}
+            >
+              {unreadCount > 0 ? (
+                <BellRing size={20} className={cn("transition-transform", isNotificationsOpen ? "" : "group-hover:rotate-12")} />
+              ) : (
+                <Bell size={20} />
+              )}
+              {unreadCount > 0 && (
+                <span className="absolute top-2 right-2.5 w-4 h-4 bg-rose-500 text-white text-[8px] font-black rounded-full border-2 border-white flex items-center justify-center animate-bounce">
+                  {unreadCount}
+                </span>
+              )}
             </button>
+
+            {/* Notifications Dropdown */}
+            <AnimatePresence>
+              {isNotificationsOpen && (
+                <>
+                  <div className="fixed inset-0 z-[-1]" onClick={() => setIsNotificationsOpen(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 top-full mt-2 w-[320px] md:w-[380px] bg-white rounded-[2rem] shadow-2xl border border-slate-100 overflow-hidden z-50 flex flex-col max-h-[500px]"
+                  >
+                    <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-white sticky top-0 z-10">
+                      <div>
+                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Notificaciones</h3>
+                        <p className="text-[10px] font-bold text-slate-400 mt-0.5">Tienes {unreadCount} mensajes sin leer</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={markAllAsRead}
+                          className="text-[9px] font-black text-teal-600 uppercase tracking-tighter hover:bg-teal-50 px-3 py-1.5 rounded-lg transition-all"
+                        >
+                          Marcar todo como leído
+                        </button>
+                        <button 
+                          onClick={() => setIsNotificationsOpen(false)}
+                          className="p-1.5 text-slate-300 hover:text-slate-500 hover:bg-slate-50 rounded-full transition-all"
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="overflow-y-auto no-scrollbar py-2">
+                      {notifications.length > 0 ? (
+                        notifications.map((notif) => (
+                          <div 
+                            key={notif.id}
+                            className={cn(
+                              "px-6 py-4 flex gap-4 hover:bg-slate-50/80 transition-all cursor-pointer relative group",
+                              !notif.isRead && "after:content-[''] after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:w-1 after:h-12 after:bg-teal-500 after:rounded-r-full"
+                            )}
+                          >
+                            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110", notif.bg)}>
+                              <notif.icon size={20} className={notif.color} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start mb-0.5">
+                                <h4 className={cn("text-xs font-black truncate", notif.isRead ? "text-slate-600" : "text-slate-900")}>
+                                  {notif.title}
+                                </h4>
+                                <span className="text-[9px] font-bold text-slate-400 whitespace-nowrap ml-2 flex items-center gap-1">
+                                  <Clock size={8} />
+                                  {notif.time}
+                                </span>
+                              </div>
+                              <p className={cn("text-[11px] leading-relaxed line-clamp-2", notif.isRead ? "text-slate-400 font-medium" : "text-slate-500 font-bold")}>
+                                {notif.description}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-20 flex flex-col items-center justify-center text-center px-10">
+                          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-4">
+                            <Bell size={32} />
+                          </div>
+                          <h4 className="text-sm font-black text-slate-800">Todo al día</h4>
+                          <p className="text-xs text-slate-400 mt-1 font-medium">No tienes notificaciones nuevas en este momento.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-center sticky bottom-0 z-10">
+                      <Link 
+                        href="/notifications"
+                        onClick={() => setIsNotificationsOpen(false)}
+                        className="text-[10px] font-black text-slate-500 hover:text-slate-800 uppercase tracking-widest transition-colors flex items-center gap-2"
+                      >
+                        <span>Ver historial completo</span>
+                        <ChevronRight size={14} />
+                      </Link>
+                    </div>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </header>
@@ -149,7 +300,7 @@ export const BottomNav = () => {
     { icon: Bot, label: 'Agente', path: '/agente' },
     { icon: MessageSquare, label: 'Chats', path: '/conversations' },
     { icon: ReceiptText, label: 'Catálogo', path: '/catalogo' },
-    { icon: Settings, label: 'Configuración', path: '/settings' },
+    { icon: Settings, label: 'Ajustes', path: '/settings' },
   ];
 
   return (

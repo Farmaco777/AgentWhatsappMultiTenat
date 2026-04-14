@@ -167,8 +167,8 @@ function ConversationsContent() {
           {/* Header */}
           <header className="bg-white/90 backdrop-blur-md h-20 border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-10 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 font-bold border border-teal-100">
-                <User size={22} />
+              <div className="w-11 h-11 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 font-black border border-teal-100 uppercase text-xs shadow-sm">
+                {selectedChat?.customerName.split(' ').map(n => n[0]).join('')}
               </div>
               {selectedChat && (
                 <div>

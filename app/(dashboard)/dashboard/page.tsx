@@ -181,8 +181,9 @@ export default function DashboardPage() {
               <div className="space-y-4 flex-1">
                 {MOCK_CHATS.slice(0, 5).map(chat => (
                   <Link href={`/conversations?chatId=${chat.id}`} key={chat.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-2xl transition-colors cursor-pointer group">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={chat.customerAvatar} alt={chat.customerName} className="w-10 h-10 rounded-full border border-slate-100" />
+                    <div className="w-10 h-10 rounded-full bg-teal-50 border border-slate-100 flex items-center justify-center text-teal-600 font-black text-xs shrink-0 uppercase">
+                      {chat.customerName.split(' ').map(n => n[0]).join('')}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center mb-0.5">
                         <span className="text-sm font-bold truncate text-slate-700">{chat.customerName}</span>

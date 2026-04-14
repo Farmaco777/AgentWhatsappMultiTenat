@@ -113,7 +113,7 @@ export default function CatalogoPage() {
               <Sparkles size={28} />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-slate-800">Menú Digital</h3>
+              <h3 className="text-2xl font-black text-slate-800">Catálogo Digital</h3>
               <p className="text-sm text-slate-400 font-medium">Configuración de artículos y disponibilidad.</p>
             </div>
           </div>

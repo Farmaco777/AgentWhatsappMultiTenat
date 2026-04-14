@@ -307,7 +307,7 @@ export default function DemoPage() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black transition-all active:scale-95 shadow-sm uppercase tracking-wider",
                   isManualMode 
-                    ? "bg-slate-900 text-white" 
+                    ? "bg-[#25D366] text-white" 
                     : "bg-white border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white"
                 )}
               >

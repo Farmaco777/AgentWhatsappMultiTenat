@@ -66,6 +66,14 @@ export default function CatalogoPage() {
     }
   };
 
+  const toggleStock = (id: string | number) => {
+    setProducts(products.map(p => 
+      p.id === id 
+        ? { ...p, stock: p.stock === 'in-stock' ? 'out-of-stock' : 'in-stock' } 
+        : p
+    ));
+  };
+
   const handleRenameCategory = (oldName: string, newName: string) => {
     if (!newName || oldName === newName) return;
     setCategories(categories.map(c => c === oldName ? newName : c));
@@ -119,17 +127,17 @@ export default function CatalogoPage() {
             </button>
             <button 
               onClick={() => setIsCategoryModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-[#00897B] text-[#00897B] rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#00897B] hover:text-white transition-all shadow-sm"
+              className="flex items-center gap-2 px-6 py-2 bg-transparent border-2 border-[#00897B] text-[#00897B] rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#00897B] hover:text-white transition-all shadow-sm"
             >
               <PlusCircle size={14} />
-              Nueva Categoría
+              Categoría
             </button>
             <button 
               onClick={() => handleOpenModal()}
-              className="flex items-center gap-2 px-6 py-3 bg-transparent border-2 border-slate-900 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+              className="flex items-center gap-2 px-6 py-2 bg-transparent border-2 border-slate-900 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all shadow-sm"
             >
               <PlusCircle size={14} />
-              Añadir Producto
+              Producto
             </button>
           </div>
         </div>
@@ -139,7 +147,7 @@ export default function CatalogoPage() {
           <button
             onClick={() => setSelectedCategory('Todos')}
             className={cn(
-              "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
+              "px-6 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
               selectedCategory === 'Todos'
                 ? "bg-[#00897B] border-[#00897B] text-white shadow-md shadow-[#00897B]/20"
                 : "bg-white border-slate-100 text-slate-400 hover:bg-[#00897B] hover:border-[#00897B] hover:text-white"
@@ -152,7 +160,7 @@ export default function CatalogoPage() {
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={cn(
-                "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
+                "px-6 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border-2",
                 selectedCategory === cat
                   ? "bg-[#00897B] border-[#00897B] text-white shadow-md shadow-[#00897B]/20"
                   : "bg-white border-slate-100 text-slate-400 hover:bg-[#00897B] hover:border-[#00897B] hover:text-white"
@@ -163,7 +171,7 @@ export default function CatalogoPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-3">
           <AnimatePresence mode="popLayout">
             {products
               .filter(p => selectedCategory === 'Todos' || p.category === selectedCategory)
@@ -171,41 +179,87 @@ export default function CatalogoPage() {
               <motion.div 
                 layout
                 key={product.id} 
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="group bg-slate-50/50 rounded-3xl border border-slate-100 overflow-hidden hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
+                exit={{ opacity: 0, scale: 0.98 }}
+                className={cn(
+                  "group bg-slate-50/50 rounded-2xl border border-slate-900/20 p-4 hover:bg-white hover:shadow-lg hover:shadow-slate-200/40 transition-all duration-300",
+                  product.stock === 'out-of-stock' && "bg-slate-100/30 border-slate-200"
+                )}
               >
-                <div className="aspect-square relative overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl text-[10px] font-black text-slate-800 shadow-sm">
-                    ${product.price.toLocaleString()}
+                <div className="flex flex-col md:flex-row items-center gap-6 w-full">
+                  {/* Status & Category */}
+                  <div className="flex flex-row md:flex-col items-center gap-2 shrink-0">
+                    <div className="bg-white/80 border-2 border-[#25D366]/30 w-[110px] h-8 rounded-xl flex items-center justify-center gap-2 shadow-sm shrink-0">
+                       <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleStock(product.id);
+                        }}
+                        className={cn(
+                          "flex items-center w-8 h-4 rounded-full p-0.5 transition-all duration-300",
+                          product.stock === 'in-stock' ? "bg-[#25D366]" : "bg-slate-300"
+                        )}
+                      >
+                        <motion.div 
+                          animate={{ x: product.stock === 'in-stock' ? 16 : 0 }}
+                          className="w-3 h-3 bg-white rounded-full shadow-sm"
+                        />
+                      </button>
+                      <span className={cn(
+                        "text-[9px] font-black uppercase tracking-widest",
+                        product.stock === 'in-stock' ? "text-[#25D366]" : "text-slate-400"
+                      )}>
+                        {product.stock === 'in-stock' ? 'Activo' : 'Agotado'}
+                      </span>
+                    </div>
+                    
+                    <span className="bg-[#00897B]/5 w-[110px] h-8 rounded-xl border-2 border-[#00897B]/40 text-[#00897B] text-[9px] font-black uppercase tracking-widest flex items-center justify-center text-center shrink-0">
+                      {product.category}
+                    </span>
                   </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-2 text-slate-600">
-                    <span className="text-[9px] font-black uppercase tracking-widest bg-white px-2 py-0.5 rounded-lg border border-slate-100">{product.category}</span>
-                    <div className={cn(
-                      "w-2 h-2 rounded-full",
-                      product.stock === 'in-stock' ? "bg-green-500" : "bg-orange-500"
-                    )} />
+
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className={cn(
+                      "font-bold text-slate-800 transition-colors",
+                      product.stock === 'in-stock' ? "group-hover:text-[#25D366]" : "text-slate-400 opacity-70"
+                    )}>
+                      {product.name}
+                    </h4>
+                    <p className="text-[11px] text-slate-400 mt-1 line-clamp-1 font-medium">
+                      {product.description}
+                    </p>
                   </div>
-                  <h4 className="font-bold text-slate-800 group-hover:text-[#25D366] transition-colors">{product.name}</h4>
-                  <p className="text-xs text-slate-400 mt-1 line-clamp-2 font-medium">{product.description}</p>
-                  <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
-                    <button 
-                      onClick={() => handleDelete(product.id)}
-                      className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-red-500 transition-colors"
-                    >
-                      Eliminar
-                    </button>
-                    <button 
-                      onClick={() => handleOpenModal(product)}
-                      className="text-[10px] font-black text-teal-600 uppercase tracking-widest hover:underline"
-                    >
-                      Editar Detalle
-                    </button>
+
+                  {/* Price & Actions */}
+                  <div className="flex items-center gap-6 shrink-0 ml-auto">
+                    <div className="text-center">
+                      <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest block mb-1">Precio</span>
+                      <p className={cn(
+                        "font-black text-slate-800",
+                        product.stock === 'out-of-stock' && "text-slate-400"
+                      )}>
+                        ${product.price.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 border-l border-slate-100 pl-6 ml-2">
+                      <button 
+                        onClick={() => handleOpenModal(product)}
+                        className="p-2.5 bg-teal-50 text-teal-600 rounded-xl hover:bg-teal-600 hover:text-white transition-all shadow-sm"
+                        title="Ver / Editar"
+                      >
+                        <Settings2 size={16} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(product.id)}
+                        className="p-2.5 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                        title="Eliminar"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -291,15 +345,8 @@ export default function CatalogoPage() {
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">URL de la Imagen</label>
-                    <input 
-                      type="url" 
-                      value={formData.image}
-                      onChange={(e) => setFormData({...formData, image: e.target.value})}
-                      className="w-full bg-slate-50 border-none rounded-xl py-3 px-4 text-[10px] text-slate-400 italic" 
-                    />
-                  </div>
+                  {/* Image field hidden as requested */}
+                  <input type="hidden" value={formData.image} />
                 </div>
 
                 <div className="flex gap-3 pt-2 shrink-0">

@@ -114,17 +114,25 @@ export async function POST(req: NextRequest) {
         }]);
 
       // 5. Generar Respuesta IA con Contexto del Negocio
-      // Buscamos productos para darle contexto
+      // Buscamos productos disponibles para darle contexto
       const { data: products } = await supabaseAdmin
         .from('products')
-        .select('*')
-        .eq('tenant_id', tenant.id);
+        .select('name, description, price, category')
+        .eq('tenant_id', tenant.id)
+        .eq('is_available', true);
 
       const aiContext = `
-        Negocio: ${tenant.name}
-        Prompt del Negocio: ${tenant.training_data || 'Asistente de ventas'}
-        Productos disponibles: ${JSON.stringify(products)}
-        Cliente: ${customer.name}
+        ### INFORMACIÓN DEL NEGOCIO
+        Nombre: ${tenant.name}
+        Estrategia y Entrenamiento (Instrucciones): ${tenant.training_data || 'Asistente cordial'}
+
+        ### CATÁLOGO DE PRODUCTOS DISPONIBLES
+        ${products && products.length > 0 
+          ? products.map(p => `- ${p.name} (${p.category}): ${p.description} | Precio: $${p.price}`).join('\n')
+          : 'No hay productos registrados en el catálogo en este momento.'}
+
+        ### DATOS DEL CLIENTE
+        Nombre: ${customer.name}
       `;
 
       const aiResponse = await generateAIContent(text, aiContext);

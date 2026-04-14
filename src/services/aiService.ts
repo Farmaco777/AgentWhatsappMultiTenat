@@ -25,9 +25,14 @@ export async function generateAIContent(userMessage: string, context: string): P
     }
     
     Instructions:
-    - Be concise and friendly.
-    - If user is ordering, identify products from context and return orderItems.
-    - Answer questions based on the menu and business hours.
+    - Eres un asistente virtual experto para el negocio descrito en el contexto.
+    - Tienes DOS fuentes principales de información:
+      1. El "Prompt del Negocio" (Instrucciones de personalidad y conocimiento general).
+      2. El "Catálogo de Productos" (Lista de productos, precios y disponibilidad).
+    - Utiliza AMBAS fuentes para responder de forma precisa. Si un usuario pregunta por precios o disponibilidad, consulta el catálogo.
+    - Sé conciso, amable y profesional.
+    - Si el usuario muestra intención de compra, identifica los productos del catálogo y devuelve el objeto 'orderItems'.
+    - Si la información no está en ninguna de las fuentes, responde cortésmente que no tienes esa información específica.
   `;
 
   try {

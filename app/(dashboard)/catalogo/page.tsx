@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, PlusCircle, X, ShoppingBag, Menu as MenuIcon, Settings2 } from 'lucide-react';
+import { Sparkles, PlusCircle, X, ShoppingBag, Menu as MenuIcon, Settings2, Upload, FileDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import * as XLSX from 'xlsx';
 import { cn } from '@/src/lib/utils';
+import { useRef } from 'react';
 import { MOCK_PRODUCTS } from '@/src/data/mockData';
 import { Product } from '@/src/types';
 
@@ -17,6 +19,8 @@ export default function CatalogoPage() {
   const [newCatName, setNewCatName] = useState('');
   const [editingCategory, setEditingCategory] = useState<{name: string, newName: string} | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Form State
   const [formData, setFormData] = useState<Partial<Product>>({
@@ -91,6 +95,62 @@ export default function CatalogoPage() {
     }
   };
 
+  const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        if (data.length === 0) {
+          alert('El archivo está vacío o no tiene el formato correcto.');
+          return;
+        }
+
+        const importedProducts = data.map((row: any) => {
+          // Normalización de nombres de columnas
+          const name = row.Nombre || row.producto || row.Name || row.PRODUCTO || '';
+          const description = row.Descripcion || row.descripción || row.Description || row.DESCRIPCIÓN || '';
+          const category = row.Categoria || row.categoría || row.Category || row.CATEGORÍA || 'General';
+          const price = Number(row.Precio || row.precio || row.Price || row.PRECIO || 0);
+
+          return {
+            id: `p${Math.random().toString(36).substr(2, 9)}`,
+            name,
+            description,
+            category,
+            price,
+            image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&h=200&auto=format&fit=crop',
+            stock: 'in-stock'
+          } as Product;
+        });
+
+        const validProducts = importedProducts.filter(p => p.name !== '');
+        
+        setProducts([...products, ...validProducts]);
+        
+        // Agregar nuevas categorías automáticamente
+        const newCats = [...new Set(validProducts.map(p => p.category))];
+        const uniqueCats = [...new Set([...categories, ...newCats])];
+        setCategories(uniqueCats);
+        
+        alert(`¡Éxito! Se han importado ${validProducts.length} productos correctamente.`);
+      } catch (error) {
+        console.error('Error al procesar Excel:', error);
+        alert('Hubo un error al leer el archivo. Asegúrate de que sea un archivo Excel válido (.xlsx o .xls).');
+      }
+      
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+    reader.readAsBinaryString(file);
+  };
+
   return (
     <div className="space-y-8 relative pb-20">
       <header>
@@ -125,6 +185,23 @@ export default function CatalogoPage() {
             >
               <Settings2 size={18} />
             </button>
+
+            {/* Excel Import */}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleImportExcel} 
+              accept=".xlsx, .xls" 
+              className="hidden" 
+            />
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center justify-center w-11 h-11 bg-emerald-50 border-2 border-emerald-100 text-emerald-600 rounded-2xl hover:bg-[#25D366] hover:text-white transition-all shadow-sm"
+              title="Importar desde Excel"
+            >
+              <Upload size={18} />
+            </button>
+
             <button 
               onClick={() => setIsCategoryModalOpen(true)}
               className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 md:px-6 py-2 bg-transparent border-2 border-[#00897B] text-[#00897B] rounded-xl md:rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#00897B] hover:text-white transition-all shadow-sm whitespace-nowrap"

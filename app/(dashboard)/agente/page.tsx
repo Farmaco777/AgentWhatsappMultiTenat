@@ -15,7 +15,7 @@ export default function AgentePage() {
     name: 'MultiBot Agent',
     tone: 'cordial',
     welcome_message: '¡Hola! ¿En qué puedo ayudarte hoy?',
-    prompt_system: '',
+    prompt_system: 'Eres un asistente experto para Negocios. Tu objetivo principal es tomar pedidos de forma eficiente, resolver dudas sobre el menú/productos y asegurar una experiencia fluida por WhatsApp. Sé proactivo recomendando productos adicionales (upselling) y asegúrate de capturar la información necesaria para el pedido (nombre, dirección si es domicilio).',
     model: 'gemini-1.5-flash'
   });
 
@@ -77,6 +77,7 @@ export default function AgentePage() {
     try {
       const res = await fetch('/api/agent/knowledge', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tenantId,
           type: 'url',
@@ -85,11 +86,40 @@ export default function AgentePage() {
       });
       const data = await res.json();
       if (data.success) {
-        setKnowledgeSources([...knowledgeSources, data.data]);
+        setKnowledgeSources([data.data, ...knowledgeSources]);
         setUrlInput('');
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    for (const file of Array.from(files)) {
+      try {
+        setSaving(true);
+        // En una app real subiríamos a Storage. Aquí registramos la fuente.
+        const res = await fetch('/api/agent/knowledge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tenantId,
+            type: 'file',
+            file_path: file.name
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setKnowledgeSources(prev => [data.data, ...prev]);
+        }
+      } catch (err) {
+        console.error('Error subiendo archivo:', err);
+      } finally {
+        setSaving(false);
+      }
     }
   };
 
@@ -135,7 +165,7 @@ export default function AgentePage() {
                 type="text"
                 value={config.name}
                 onChange={(e) => { setConfig({...config, name: e.target.value}); setHasChanges(true); }}
-                className="w-full bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500/20 text-sm py-4 px-5"
+                className="w-full bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500/20 text-sm h-[76px] px-5"
               />
             </div>
             
@@ -144,7 +174,7 @@ export default function AgentePage() {
               <select 
                 value={config.tone}
                 onChange={(e) => { setConfig({...config, tone: e.target.value}); setHasChanges(true); }} 
-                className="w-full bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500/20 text-sm py-4 px-5 appearance-none"
+                className="w-full bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500/20 text-sm h-[76px] px-5 appearance-none cursor-pointer"
               >
                 <option value="cercano">Cercano y Amigable</option>
                 <option value="cordial">Cordial y Profesional</option>
@@ -155,17 +185,16 @@ export default function AgentePage() {
 
             <div className="space-y-2 lg:col-span-6">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
-                Modelo de Inteligencia
-                <Cpu size={14} className="text-teal-500" />
+                Mensaje de Bienvenida
+                <MessageCircle size={14} className="text-teal-500" />
               </label>
-              <select 
-                value={config.model}
-                onChange={(e) => { setConfig({...config, model: e.target.value}); setHasChanges(true); }} 
-                className="w-full bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500/20 text-sm py-4 px-5 appearance-none"
-              >
-                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Rápido)</option>
-                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Razonamiento Complejo)</option>
-              </select>
+              <textarea
+                rows={2}
+                value={config.welcome_message}
+                onChange={(e) => { setConfig({...config, welcome_message: e.target.value}); setHasChanges(true); }}
+                placeholder="¡Hola! Bienvenido a..."
+                className="w-full bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-teal-500/20 text-sm h-[76px] py-4 px-5 resize-none font-medium leading-relaxed"
+              />
             </div>
           </div>
 
@@ -212,7 +241,7 @@ export default function AgentePage() {
           <div className="w-14 h-14 rounded-[1.5rem] bg-purple-50 flex items-center justify-center text-purple-600 shadow-sm">
             <Cpu size={28} />
           </div>
-          <h3 className="text-2xl font-black text-slate-800">Entrenamiento del Agente IA (RAG)</h3>
+          <h3 className="text-2xl font-black text-slate-800">Entrenamiento del Agente IA</h3>
         </div>
 
         <div className="space-y-12">
@@ -221,32 +250,55 @@ export default function AgentePage() {
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Documentos de Conocimiento</label>
             
             <label className="border-2 border-dashed border-slate-100 rounded-[2rem] p-10 flex flex-col items-center justify-center text-center group hover:border-teal-200 hover:bg-teal-50/30 transition-all cursor-pointer relative overflow-hidden">
-              <input type="file" multiple accept=".pdf,.docx,.txt" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={() => alert('Próximamente: Integración con Supabase Storage')} />
+              <input 
+                type="file" 
+                multiple 
+                accept=".pdf,.docx,.txt,.xlsx,.xls" 
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                onChange={handleFileUpload}
+                disabled={saving}
+              />
               <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 mb-4 group-hover:bg-teal-100 group-hover:text-teal-600 transition-all">
-                <Upload size={32} />
+                {saving ? <Loader2 className="animate-spin text-teal-600" /> : <Upload size={32} />}
               </div>
               <h4 className="font-bold text-slate-700">Sube archivos para entrenar</h4>
               <p className="text-sm text-slate-400 mt-1">Arrastra y suelta o haz clic para buscar en tu equipo</p>
-              <p className="text-[10px] font-bold text-slate-300 mt-3">PDF, DOCX, TXT</p>
+              <p className="text-[10px] font-bold text-slate-300 mt-3">PDF, DOCX, XLSX, TXT</p>
             </label>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mt-6">
               <AnimatePresence>
-                {knowledgeSources.filter(s => s.type === 'file').map((source) => (
-                  <motion.div 
-                    key={source.id}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><FileText size={16} /></div>
-                      <span className="text-xs font-bold text-slate-600 truncate max-w-[150px]">{source.file_path || 'Documento'}</span>
-                    </div>
-                    <button onClick={() => removeSource(source.id)} className="text-slate-300 hover:text-red-500 transition-colors"><X size={16} /></button>
-                  </motion.div>
-                ))}
+                {knowledgeSources.filter(s => s.type === 'file').map((source) => {
+                  const isExcel = source.file_path?.endsWith('.xlsx') || source.file_path?.endsWith('.xls');
+                  return (
+                    <motion.div 
+                      key={source.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
+                          isExcel ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
+                        )}>
+                          {isExcel ? <FileCode size={20} /> : <FileText size={20} />}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-slate-700 truncate max-w-[180px]">{source.file_path || 'Documento'}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">Fuente de conocimiento</span>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => removeSource(source.id)} 
+                        className="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                      >
+                        <X size={16} />
+                      </button>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </div>
           </div>

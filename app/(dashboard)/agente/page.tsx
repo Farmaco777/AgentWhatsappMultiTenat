@@ -21,8 +21,8 @@ export default function AgentePage() {
 
   const [knowledgeSources, setKnowledgeSources] = useState<any[]>([]);
 
-  // TODO: Obtener el tenantId real de la sesión de Auth
-  const tenantId = 'EL_ID_DEL_TENANT_ACTUAL';
+  // ID del tenant real para persistencia
+  const tenantId = '623a5c39-f9fd-4869-967b-3a4f6f682d52';
 
   useEffect(() => {
     async function loadData() {

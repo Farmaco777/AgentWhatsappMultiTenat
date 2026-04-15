@@ -12,8 +12,8 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // TODO: Obtener de Auth real
-  const tenantId = 'EL_ID_DEL_TENANT_ACTUAL';
+  // ID del tenant real obtenido de Supabase
+  const tenantId = '623a5c39-f9fd-4869-967b-3a4f6f682d52';
 
   useEffect(() => {
     async function fetchStats() {

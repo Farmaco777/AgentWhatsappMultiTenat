@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { tenantId, type, source_url, content } = await req.json();
+    const { tenantId, type, source_url, content, file_path } = await req.json();
 
     if (!tenantId || !type) return NextResponse.json({ error: 'Datos incompletos' }, { status: 400 });
 
@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
         type,
         source_url,
         content,
+        file_path,
         status: 'indexed' // En un flujo real esto pasaría a 'pending' para scapear/procesar
       }])
       .select()

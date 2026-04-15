@@ -120,7 +120,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="flex items-end justify-between flex-1 min-h-[16rem] gap-2 px-2 mt-auto pt-10">
-                {chartData.map((data, i) => (
+                {chartData.map((data: any, i: number) => (
                   <div 
                     key={data.day} 
                     className="flex flex-col items-center gap-3 flex-1 h-full relative cursor-pointer"

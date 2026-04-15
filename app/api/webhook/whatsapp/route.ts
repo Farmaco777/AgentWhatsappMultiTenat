@@ -111,68 +111,93 @@ export async function POST(req: NextRequest) {
       // 4.1. CONTABILIZAR SESIÓN DE 24H (Facturación Meta)
       await checkAndLogConversationWindow(tenantId, conversation.id);
 
-      // 4.5. VALIDACIÓN DE CONTROL HUMANO (Handoff)
-      // Si la conversación está marcada como intervención humana, no llamamos a la IA.
-      if (conversation.status === 'human_required') {
-        console.log(`[HANDOFF] El humano está al mando de la conversación ${conversation.id}. Bot en silencio.`);
-        return new NextResponse('HUMAN_IN_CONTROL', { status: 200 });
+      // 4.2. DEBOUNCE / CONCURRENCY LOCK (Evitar respuestas dobles)
+      // Si el bot ya está pensando, ignoramos este disparo extra.
+      // Añadimos un timeout de seguridad: si lleva más de 30 segundos bloqueado, lo ignoramos (posible error previo).
+      const lastUpdate = new Date(conversation.updated_at).getTime();
+      const now = new Date().getTime();
+      const isStuck = (now - lastUpdate) > 30000;
+
+      if (conversation.is_processing && !isStuck) {
+        console.log(`[CONCURRENCY] Ignorando ráfaga de mensajes para conversación ${conversation.id}`);
+        return new NextResponse('ALREADY_PROCESSING', { status: 200 });
       }
 
-      // 5. Persistir Mensaje del Cliente (Capa de Datos)
+      // Marcamos como procesando ANTES de llamar a la IA
       await supabaseAdmin
-        .from('messages')
-        .insert([{
-          conversation_id: conversation.id,
-          tenant_id: tenantId,
-          sender_type: 'customer',
-          content: text,
-          meta_message_id: metaMessageId
-        }]);
+        .from('conversations')
+        .update({ is_processing: true, updated_at: new Date().toISOString() })
+        .eq('id', conversation.id);
 
-      // 6. Cargar Configuración del Agente IA de este Tenant
-      const { data: agentConfig } = await supabaseAdmin
-        .from('agent_configs')
-        .select('*')
-        .eq('tenant_id', tenantId)
-        .single();
+      try {
+        // 4.5. VALIDACIÓN DE CONTROL HUMANO (Handoff)
+        if (conversation.status === 'human_required') {
+          console.log(`[HANDOFF] El humano está al mando de la conversación ${conversation.id}. Bot en silencio.`);
+          return new NextResponse('HUMAN_IN_CONTROL', { status: 200 });
+        }
 
-      // 7. Cargar Contexto (Productos/Servicios)
-      const { data: products } = await supabaseAdmin
-        .from('products')
-        .select('name, description, price, category')
-        .eq('tenant_id', tenantId)
-        .eq('is_available', true);
+        // 5. Persistir Mensaje del Cliente (Capa de Datos)
+        await supabaseAdmin
+          .from('messages')
+          .insert([{
+            conversation_id: conversation.id,
+            tenant_id: tenantId,
+            sender_type: 'customer',
+            content: text,
+            meta_message_id: metaMessageId
+          }]);
 
-      // 8. Orquestación del Motor de IA (Agent Runtime)
-      const aiContext = `
-        ### CONFIGURACIÓN DEL AGENTE
-        Instrucciones de Personalidad: ${agentConfig?.prompt_system || 'Eres un asistente de ventas cordial para WhatsApp.'}
-        Modelo: ${agentConfig?.model || 'gemini-1.5-flash'}
-        
-        ### CATÁLOGO DEL NEGOCIO
-        ${products && products.length > 0 
-          ? products.map(p => `- ${p.name} ($${p.price}): ${p.description}`).join('\n')
-          : 'No hay productos configurados aún.'}
+        // 6. Cargar Configuración del Agente IA de este Tenant
+        const { data: agentConfig } = await supabaseAdmin
+          .from('agent_configs')
+          .select('*')
+          .eq('tenant_id', tenantId)
+          .single();
 
-        ### DATOS DEL CLIENTE
-        Nombre: ${customer.name}
-      `;
+        // 7. Cargar Contexto (Productos/Servicios)
+        const { data: products } = await supabaseAdmin
+          .from('products')
+          .select('name, description, price, category')
+          .eq('tenant_id', tenantId)
+          .eq('is_available', true);
 
-      // Generar respuesta
-      const aiResponse = await generateAIContent(text, aiContext);
+        // 8. Orquestación del Motor de IA (Agent Runtime)
+        const aiContext = `
+          ### CONFIGURACIÓN DEL AGENTE
+          Instrucciones de Personalidad: ${agentConfig?.prompt_system || 'Eres un asistente de ventas cordial para WhatsApp.'}
+          Mensaje de Bienvenida: ${agentConfig?.welcome_message || ''}
+          
+          ### CATÁLOGO DEL NEGOCIO
+          ${products && products.length > 0 
+            ? products.map(p => `- ${p.name} ($${p.price}): ${p.description}`).join('\n')
+            : 'No hay productos configurados aún.'}
 
-      // 9. Envío de Respuesta y Registro (Outbound)
-      // Nota: Aquí usaríamos el token específico del tenant si ya lo tenemos cifrado
-      await sendWhatsAppMessage(from, aiResponse.text);
+          ### DATOS DEL CLIENTE
+          Nombre: ${customer.name}
+        `;
 
-      await supabaseAdmin
-        .from('messages')
-        .insert([{
-          conversation_id: conversation.id,
-          tenant_id: tenantId,
-          sender_type: 'bot',
-          content: aiResponse.text
-        }]);
+        // Generar respuesta
+        const aiResponse = await generateAIContent(text, aiContext);
+
+        // 9. Envío de Respuesta y Registro (Outbound)
+        await sendWhatsAppMessage(from, aiResponse.text);
+
+        await supabaseAdmin
+          .from('messages')
+          .insert([{
+            conversation_id: conversation.id,
+            tenant_id: tenantId,
+            sender_type: 'bot',
+            content: aiResponse.text
+          }]);
+
+      } finally {
+        // SIEMPRE liberamos el bloqueo, pase lo que pase
+        await supabaseAdmin
+          .from('conversations')
+          .update({ is_processing: false, updated_at: new Date().toISOString() })
+          .eq('id', conversation.id);
+      }
 
       return new NextResponse('PROCESSED_SUCCESSFULLY', { status: 200 });
     }

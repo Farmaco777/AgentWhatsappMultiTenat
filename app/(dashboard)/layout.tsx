@@ -2,6 +2,8 @@
 
 import { usePathname } from 'next/navigation';
 import { Sidebar, Header, BottomNav } from '@/src/components/Navigation';
+import { cn } from '@/src/lib/utils';
+import FacebookSDK from '@/src/lib/facebookSdk';
 
 export default function DashboardLayout({
   children,
@@ -13,6 +15,7 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      <FacebookSDK />
       <Sidebar />
       <Header />
       <main className={cn(
@@ -31,4 +34,3 @@ export default function DashboardLayout({
   );
 }
 
-import { cn } from '@/src/lib/utils';

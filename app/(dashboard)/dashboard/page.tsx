@@ -1,40 +1,72 @@
 'use client';
 
-import {
-  TrendingUp,
-  Calendar,
-  Users,
-  MessageSquare,
-  AlertCircle,
-  Sparkles,
-  Store,
-  Send,
-  ChevronRight
-} from 'lucide-react';
-import { MOCK_CHATS } from '@/src/data/mockData';
+import { TrendingUp, Calendar, Users, MessageSquare, AlertCircle, Sparkles, Store, Send, ChevronRight, Loader2, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/src/lib/utils';
 import Link from 'next/link';
+import { supabase } from '@/src/lib/supabase';
 
 export default function DashboardPage() {
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // TODO: Obtener de Auth real
+  const tenantId = 'EL_ID_DEL_TENANT_ACTUAL';
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch(`/api/dashboard/stats?tenantId=${tenantId}`);
+        const data = await res.json();
+        setStats(data);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, [tenantId]);
+
+  // Hook movido aquí para cumplir con las reglas de React
+  const [recentChats, setRecentChats] = useState<any[]>([]);
+  useEffect(() => {
+    async function loadRecent() {
+      const { data } = await supabase.from('conversations')
+        .select('*, customers(*)')
+        .eq('tenant_id', tenantId)
+        .order('updated_at', { ascending: false })
+        .limit(5);
+      if (data) setRecentChats(data);
+    }
+    loadRecent();
+  }, [tenantId]);
   
-  const chartData = [
-    { day: 'LUN', height: 40, value: '$520.000', chats: 145 },
-    { day: 'MAR', height: 60, value: '$780.000', chats: 210 },
-    { day: 'MIE', height: 45, value: '$585.000', chats: 160 },
-    { day: 'JUE', height: 85, value: '$1.1M', chats: 320 },
-    { day: 'VIE', height: 95, value: '$1.25M', chats: 405 },
-    { day: 'SAB', height: 70, value: '$910.000', chats: 280 },
-    { day: 'DOM', height: 55, value: '$715.000', chats: 190 },
-  ];
+  // Mapeo dinámico de datos para el gráfico semanal
+  const maxSessions = Math.max(...(stats?.weeklySessions?.map((d: any) => d.count) || [1]));
+  const chartData = stats?.weeklySessions?.map((d: any) => ({
+    day: d.day,
+    height: Math.max((d.count / maxSessions) * 100, 5), // Mínimo 5% de altura para visualización
+    value: `${d.count} Sesiones`,
+    chats: d.count
+  })) || [];
+
+  if (loading) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin text-[#25D366]" size={40} />
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Analizando datos de facturación...</p>
+      </div>
+    );
+  }
 
   const kpis = [
-    { label: 'Ventas del día', value: '$1.250.000', change: '+8%', icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Chats Activos', value: MOCK_CHATS.length.toString(), change: 'En vivo', icon: MessageSquare, color: 'text-orange-600', bg: 'bg-orange-50' },
-    { label: 'Autonomía IA', value: '94%', change: 'Gestión Auto', icon: Sparkles, color: 'text-teal-600', bg: 'bg-teal-50' },
-    { label: 'Clientes VIP', value: '18', change: 'Frecuentes', icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
+    { label: 'Conversaciones 24h', value: `${stats?.totalSessions || 0} ses.`, change: 'Mes actual', icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: 'Chats Activos', value: stats?.activeChats?.toString() || '0', change: 'En vivo', icon: MessageSquare, color: 'text-orange-600', bg: 'bg-orange-50' },
+    { label: 'Autonomía IA', value: `${stats?.autonomy || 0}%`, change: 'Gestión Auto', icon: Sparkles, color: 'text-teal-600', bg: 'bg-teal-50' },
+    { label: 'Uso de Tokens', value: stats?.aiTokens?.toLocaleString() || '0', change: 'Consumo IA', icon: Zap, color: 'text-purple-600', bg: 'bg-purple-50' },
   ];
 
   return (
@@ -179,21 +211,24 @@ export default function DashboardPage() {
                 <Link href="/conversations" className="text-xs font-bold text-teal-600 hover:underline">Ver todas</Link>
               </div>
               <div className="space-y-4 flex-1">
-                {MOCK_CHATS.slice(0, 5).map(chat => (
+                {recentChats.map(chat => (
                   <Link href={`/conversations?chatId=${chat.id}`} key={chat.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-2xl transition-colors cursor-pointer group">
                     <div className="w-10 h-10 rounded-full bg-teal-50 border border-slate-100 flex items-center justify-center text-teal-600 font-black text-xs shrink-0 uppercase">
-                      {chat.customerName.split(' ').map(n => n[0]).join('')}
+                      {chat.customers?.name?.split(' ').map((n: any) => n[0]).join('') || 'U'}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center mb-0.5">
-                        <span className="text-sm font-bold truncate text-slate-700">{chat.customerName}</span>
-                        <span className="text-[10px] text-slate-400">{chat.timestamp}</span>
+                        <span className="text-sm font-bold truncate text-slate-700">{chat.customers?.name || 'Cliente'}</span>
+                        <span className="text-[10px] text-slate-400">
+                          {new Date(chat.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
-                      <p className="text-xs text-slate-400 truncate">{chat.lastMessage}</p>
+                      <p className="text-xs text-slate-400 truncate">{chat.last_message_content || 'Sin mensajes'}</p>
                     </div>
                     <ChevronRight className="text-slate-300 w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 ))}
+                {recentChats.length === 0 && <p className="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest">No hay chats recientes</p>}
               </div>
             </div>
           </div>

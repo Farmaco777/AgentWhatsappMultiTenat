@@ -32,8 +32,8 @@ export default function LoginPage() {
       >
         <div className="mb-6 text-center lg:text-left">
           <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
-            <div className="w-10 h-10 bg-[#25D366] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#25D366]/20">
-              <MessageSquare size={24} />
+            <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
+              <img src="/apple-touch-icon.png" alt="MultiBot Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-black tracking-tighter text-white">MultiBot</span>
           </div>

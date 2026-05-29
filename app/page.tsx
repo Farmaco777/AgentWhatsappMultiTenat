@@ -76,8 +76,8 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100 h-20 flex items-center">
         <div className="max-w-6xl mx-auto w-full px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-[#25D366] rounded-xl flex items-center justify-center shadow-lg shadow-[#25D366]/20">
-              <MessageSquare className="text-white" size={24} />
+            <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl shadow-sm">
+              <img src="/icon-192x192-maskable.png" alt="MultiBot Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-2xl font-black tracking-tighter text-slate-900">MultiBot</span>
           </div>
@@ -344,8 +344,8 @@ export default function LandingPage() {
       <footer className="bg-white py-16 px-6 border-t border-slate-100">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#25D366] rounded-xl flex items-center justify-center">
-              <MessageSquare className="text-white" size={18} />
+            <div className="w-8 h-8 flex items-center justify-center overflow-hidden rounded-xl shadow-sm">
+              <img src="/icon-192x192-maskable.png" alt="MultiBot Logo" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-black tracking-tighter text-slate-900">MultiBot</span>
           </div>

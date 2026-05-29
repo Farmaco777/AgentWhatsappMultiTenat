@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: 'Panel de operaciones inteligentes para tu restaurante.',
   manifest: '/manifest.json',
   icons: {
-    icon: '/icon-192x192.png',
+    icon: '/apple-touch-icon.png',
     apple: '/apple-touch-icon.png',
   },
 };

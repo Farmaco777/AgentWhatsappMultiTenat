@@ -66,8 +66,8 @@ export const Sidebar = ({ className, isOpen, onClose }: SidebarProps) => {
         <div className="p-6 flex flex-col h-full overflow-y-auto pb-8">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-600/20">
-                <ReceiptText size={24} />
+              <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center shadow-sm overflow-hidden">
+                <img src="/icon-192x192.png" alt="MultiBot Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <h1 className="text-xl font-black text-slate-800 leading-none">MultiBot</h1>

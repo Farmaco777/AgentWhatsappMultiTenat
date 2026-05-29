@@ -1,19 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/src/lib/supabaseServer';
+import { supabaseAdmin, safeQuery } from '@/src/lib/supabaseServer';
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const tenantId = searchParams.get('tenantId');
+  try {
+    const { searchParams } = new URL(req.url);
+    const tenantId = searchParams.get('tenantId');
 
-  if (!tenantId) return NextResponse.json({ error: 'Falta tenantId' }, { status: 400 });
+    if (!tenantId) return NextResponse.json({ error: 'Falta tenantId' }, { status: 400 });
 
-  const { data, error } = await supabaseAdmin
-    .from('knowledge_sources')
-    .select('*')
-    .eq('tenant_id', tenantId);
+    const result = await safeQuery(
+      supabaseAdmin
+        .from('knowledge_sources')
+        .select('*')
+        .eq('tenant_id', tenantId),
+      { data: [], error: null } as any,
+      2000
+    );
 
-  return NextResponse.json(data || []);
+    return NextResponse.json(result?.data || []);
+  } catch (error: any) {
+    console.error('[Agent Knowledge API] Error en GET:', error);
+    return NextResponse.json([]);
+  }
 }
+
 
 export async function POST(req: NextRequest) {
   try {

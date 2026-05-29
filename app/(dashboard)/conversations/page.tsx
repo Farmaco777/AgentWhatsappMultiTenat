@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
-import { supabase } from '@/src/lib/supabase';
+import { supabase, safeQueryClient } from '@/src/lib/supabase';
 
 function ConversationsContent() {
   const searchParams = useSearchParams();
@@ -42,23 +42,31 @@ function ConversationsContent() {
   useEffect(() => {
     async function loadChats() {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('conversations')
-        .select(`
-          *,
-          customers (*)
-        `)
-        .eq('tenant_id', tenantId)
-        .order('updated_at', { ascending: false });
+      const result = await safeQueryClient(
+        supabase
+          .from('conversations')
+          .select(`
+            *,
+            customers (*)
+          `)
+          .eq('tenant_id', tenantId)
+          .order('updated_at', { ascending: false }),
+        { data: [], error: null } as any,
+        2000
+      );
 
-      if (data) {
+      const data = result?.data || [];
+      if (data && data.length > 0) {
         setChats(data);
         if (chatIdParam) {
-          const chat = data.find(c => c.id === chatIdParam);
+          const chat = data.find((c: any) => c.id === chatIdParam);
           if (chat) setSelectedChat(chat);
-        } else if (data.length > 0) {
+        } else {
           setSelectedChat(data[0]);
         }
+      } else {
+        setChats([]);
+        setSelectedChat(null);
       }
       setLoading(false);
     }
@@ -69,13 +77,17 @@ function ConversationsContent() {
   useEffect(() => {
     if (selectedChat) {
       async function loadMessages() {
-        const { data } = await supabase
-          .from('messages')
-          .select('*')
-          .eq('conversation_id', selectedChat.id)
-          .order('created_at', { ascending: true });
+        const result = await safeQueryClient(
+          supabase
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', selectedChat.id)
+            .order('created_at', { ascending: true }),
+          { data: [], error: null } as any,
+          2000
+        );
         
-        if (data) setLocalMessages(data);
+        if (result?.data) setLocalMessages(result.data);
       }
       loadMessages();
 

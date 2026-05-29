@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/src/lib/utils';
 import Link from 'next/link';
-import { supabase } from '@/src/lib/supabase';
+import { supabase, safeQueryClient } from '@/src/lib/supabase';
 
 export default function DashboardPage() {
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
@@ -34,12 +34,16 @@ export default function DashboardPage() {
   const [recentChats, setRecentChats] = useState<any[]>([]);
   useEffect(() => {
     async function loadRecent() {
-      const { data } = await supabase.from('conversations')
-        .select('*, customers(*)')
-        .eq('tenant_id', tenantId)
-        .order('updated_at', { ascending: false })
-        .limit(5);
-      if (data) setRecentChats(data);
+      const result = await safeQueryClient(
+        supabase.from('conversations')
+          .select('*, customers(*)')
+          .eq('tenant_id', tenantId)
+          .order('updated_at', { ascending: false })
+          .limit(5),
+        { data: [], error: null } as any,
+        2000
+      );
+      if (result?.data) setRecentChats(result.data);
     }
     loadRecent();
   }, [tenantId]);

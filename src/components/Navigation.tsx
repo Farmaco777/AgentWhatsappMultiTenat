@@ -53,17 +53,17 @@ export const Sidebar = ({ className, isOpen, onClose }: SidebarProps) => {
       {/* Overlay for mobile */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 md:hidden"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] md:hidden"
           onClick={onClose}
         />
       )}
       
       <aside className={cn(
-        "h-screen w-64 flex flex-col fixed left-0 top-0 bg-white border-r border-slate-100 z-50 transition-transform duration-300 md:translate-x-0",
+        "h-[100dvh] w-64 flex flex-col fixed left-0 top-0 bg-white border-r border-slate-100 z-[60] transition-transform duration-300 md:translate-x-0",
         isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full",
         className
       )}>
-        <div className="p-6 flex flex-col h-full">
+        <div className="p-6 flex flex-col h-full overflow-y-auto pb-8">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-600/20">
@@ -119,6 +119,7 @@ export const Sidebar = ({ className, isOpen, onClose }: SidebarProps) => {
 };
 
 export const Header = () => {
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   
@@ -180,6 +181,13 @@ export const Header = () => {
           </div>
 
           <div className="flex items-center gap-4 relative">
+            <button 
+              onClick={() => router.push('/login')}
+              className="md:hidden p-2.5 rounded-full text-slate-500 hover:bg-red-50 hover:text-red-500 transition-all"
+              title="Cerrar Sesión"
+            >
+              <LogOut size={20} />
+            </button>
             <button 
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
               className={cn(
